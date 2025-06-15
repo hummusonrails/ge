@@ -44,7 +44,7 @@ export default function CompletionBanner() {
 
   const handleCast = () => {
     sdk.actions.composeCast({
-      text: "🌍 I completed the GeoCaster challenge! All continents cleared!",
+      text: `🌍 I just conquered the continents on GeoCaster.\n\nCan you name them all? Play: https://farcaster.xyz/miniapps/w28yvS34f1Xq/geocaster`,
       embeds: isMinted ? [nftImageUrl] : undefined,
     });
     setContinentsCompleted(0);
