@@ -4,7 +4,7 @@ import { continentsCompletedAtom } from "../state";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import GeoCasterNFTAbi from "../abi/GeoCasterNFT.json";
 
-const CONTRACT_ADDRESS = "0xdB3F4Ecb0298238a19eC5AFD087C6d9dF8041919"; // deployed NFT contract
+const CONTRACT_ADDRESS = "0xa3555bB208a25F20180ADAe9fF682642DD023eF4";
 
 export default function CompletionBanner() {
   const setContinentsCompleted = useSetAtom(continentsCompletedAtom);
