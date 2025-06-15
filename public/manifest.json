@@ -1,0 +1,16 @@
+{
+    "name": "GeoCaster",
+    "short_name": "GeoCaster",
+    "description": "Guess countries, complete continents, and mint your GeoCaster NFT on Arbitrum. Share your achievement to Farcaster!",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0d223a",
+    "theme_color": "#0d223a",
+    "icons": [
+      {
+        "src": "/og-image.png",
+        "sizes": "200x200",
+        "type": "image/png"
+      }
+    ]
+}
