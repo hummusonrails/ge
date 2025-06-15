@@ -14,7 +14,7 @@ contract GeoCasterNFT is ERC721, Ownable, ReentrancyGuard {
     bool private _initialized;
 
     // Replace with your actual PNG URL or base64 data URI
-    string private constant NFT_IMAGE = "https://geo-l1r2.onrender.com/nft.png";
+    string private constant NFT_IMAGE = "https://ge-z3kf.onrender.com/nft.png";
 
     // $3 USD in ETH (hardcoded for simplicity, update as needed)
     uint256 private constant USD3_IN_WEI = 0.0009 ether; // Example: $3 ~ 0.0009 ETH at $3,333/ETH
