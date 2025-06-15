@@ -14,6 +14,11 @@
     "requiredCapabilities": [
       "actions.composeCast",
       "wallet.getEthereumProvider"
-    ]
+    ],
+    "accountAssociation": {
+      "header": "eyJmaWQiOjMyMzc5NywidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEIzNDFmQTgxNTkzMkU3RTAyMWI5Njc5N2U4QzZGMmM0RjAzMTAwOUEifQ",
+      "payload": "eyJkb21haW4iOiJnZS16M2tmLm9ucmVuZGVyLmNvbSJ9",
+      "signature": "MHhlMjgzYzg3NjY4NmIxMjhiNDQxOTM5YjlmNDRkZDA4ZmJlZDE2MzUwNmY1ZTgzNzY0NTc2ODQ1YjVlYzk4NDJlNWZiODQxNjgyNjNlODhlNmUzZTU5YTVlYWMzMzQ3ZWZhNDcyODczMWZkYmU5NzQwNGY5MDExNjhmODlkOTdiMjFj"
+    }
   }
 }
