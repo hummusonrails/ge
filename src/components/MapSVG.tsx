@@ -1,4 +1,4 @@
-import React from "react";
+
 import { useInlineSVG } from "./useInlineSVG";
 
 interface MapSVGProps {

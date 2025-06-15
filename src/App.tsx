@@ -19,7 +19,7 @@ export default function App() {
 
   // Dev: allow connect button to proceed on localhost
   const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-  const [devConnected, setDevConnected] = useState(false);
+  
   const isDevConnected = isConnected || (isLocalhost && devConnected);
 
   useEffect(() => {
