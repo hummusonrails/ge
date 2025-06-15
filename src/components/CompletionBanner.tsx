@@ -4,7 +4,7 @@ import { continentsCompletedAtom } from "../state";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import GeoCasterNFTAbi from "../abi/GeoCasterNFT.json";
 
-const CONTRACT_ADDRESS = "0xa3555bB208a25F20180ADAe9fF682642DD023eF4";
+const CONTRACT_ADDRESS = "0xABAC242395e9E8F53360Fa98d4a71f6ECe397c91";
 
 export default function CompletionBanner() {
   const setContinentsCompleted = useSetAtom(continentsCompletedAtom);
@@ -30,7 +30,7 @@ export default function CompletionBanner() {
 
 
   // Mocked NFT image URL (should be fetched from token_uri in a real app)
-  const nftImageUrl = "https://yourdomain.com/nft.png";
+  const nftImageUrl = "https://ge-z3kf.onrender.com/nft.png";
 
   // Separate handlers for mint and cast
   const handleMint = () => {
