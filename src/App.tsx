@@ -3,19 +3,137 @@ import { sdk } from "@farcaster/frame-sdk";
 import { useAccount, useConnect } from "wagmi";
 import ContinentQuiz from "./components/ContinentQuiz";
 import CompletionBanner from "./components/CompletionBanner";
+import GameTimer from "./components/GameTimer";
+
+function formatElapsedTime(ms: number): string {
+  if (!ms || ms < 0) return "-";
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
 import { CONTINENTS } from "./data/continents";
 import { useAtom } from "jotai";
 import { continentsCompletedAtom } from "./state";
 
 export default function App() {
+  // Load state from localStorage if present
+  const loadGameState = () => {
+    try {
+      const saved = localStorage.getItem("geocaster_game_state");
+      if (saved) {
+        const { completedContinents, currentContinentIndex } = JSON.parse(saved);
+        return {
+          completedContinents: Array.isArray(completedContinents) ? completedContinents : [],
+          currentContinentIndex: typeof currentContinentIndex === 'number' ? currentContinentIndex : 0,
+        };
+      }
+    } catch {}
+    return { completedContinents: [], currentContinentIndex: 0 };
+  };
+
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return localStorage.getItem("geocaster_onboarded") !== "true";
   });
-  const [currentContinentIndex, setCurrentContinentIndex] = useState(0);
-  const [completedContinents, setCompletedContinents] = useState<string[]>([]);
+  const initialGameState = loadGameState();
+  const [completedContinents, setCompletedContinents] = useState<string[]>(initialGameState.completedContinents);
+  const [currentContinentIndex, setCurrentContinentIndex] = useState(initialGameState.currentContinentIndex);
+
+  // Ensure guessedCountriesByContinent always has an array for the current continent
+  useEffect(() => {
+    const continentName = CONTINENTS[currentContinentIndex]?.name;
+    if (continentName && !guessedCountriesByContinent[continentName]) {
+      setGuessedCountriesByContinent(prev => ({ ...prev, [continentName]: [] }));
+    }
+    // eslint-disable-next-line
+  }, [currentContinentIndex]);
+  // Persist guessed countries for each continent
+  const [guessedCountriesByContinent, setGuessedCountriesByContinent] = useState<Record<string, string[]>>(() => {
+    try {
+      const saved = localStorage.getItem("geocaster_guessed_countries");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {};
+  });
   const [continentsCompleted, setContinentsCompleted] = useAtom(continentsCompletedAtom);
+
+  // Timer state
+  const [startTimestamp, setStartTimestamp] = useState<number | null>(() => {
+    const saved = localStorage.getItem("geocaster_timer_start");
+    return saved ? Number(saved) : null;
+  });
+  const [endTimestamp, setEndTimestamp] = useState<number | null>(() => {
+    const saved = localStorage.getItem("geocaster_timer_end");
+    return saved ? Number(saved) : null;
+  });
+  const [elapsedTimeMs, setElapsedTimeMs] = useState<number>(() => {
+    const saved = localStorage.getItem("geocaster_timer_elapsed");
+    return saved ? Number(saved) : 0;
+  });
+
+  // Start timer on new game
+  useEffect(() => {
+    if (!startTimestamp) {
+      const now = Date.now();
+      setStartTimestamp(now);
+      localStorage.setItem("geocaster_timer_start", now.toString());
+    }
+  }, [startTimestamp]);
+
+  // When game is completed, stop timer and persist elapsed time
+  useEffect(() => {
+    if (continentsCompleted === CONTINENTS.length && startTimestamp && !endTimestamp) {
+      const now = Date.now();
+      setEndTimestamp(now);
+      localStorage.setItem("geocaster_timer_end", now.toString());
+      const elapsed = now - startTimestamp;
+      setElapsedTimeMs(elapsed);
+      localStorage.setItem("geocaster_timer_elapsed", elapsed.toString());
+    }
+  }, [continentsCompleted, startTimestamp, endTimestamp]);
+
+  // Reset timer on game reset
+  const resetGame = () => {
+    setCompletedContinents([]);
+    setCurrentContinentIndex(0);
+    setContinentsCompleted(0);
+    setGuessedCountriesByContinent({});
+    localStorage.removeItem("geocaster_game_state");
+    localStorage.removeItem("geocaster_guessed_countries");
+    // Timer reset
+    setStartTimestamp(null);
+    setEndTimestamp(null);
+    setElapsedTimeMs(0);
+    localStorage.removeItem("geocaster_timer_start");
+    localStorage.removeItem("geocaster_timer_end");
+    localStorage.removeItem("geocaster_timer_elapsed");
+  };
+
+
+  // On mount, sync continentsCompleted with completedContinents from localStorage
+  useEffect(() => {
+    setContinentsCompleted(completedContinents.length);
+  }, []);
+
+  // Whenever completedContinents changes, update continentsCompleted
+  useEffect(() => {
+    setContinentsCompleted(completedContinents.length);
+  }, [completedContinents, setContinentsCompleted]);
   const { isConnected, address } = useAccount();
   const { connect, connectors, error, status } = useConnect();
+
+  // Persist game state to localStorage on change
+  useEffect(() => {
+    localStorage.setItem(
+      "geocaster_game_state",
+      JSON.stringify({ completedContinents, currentContinentIndex })
+    );
+    localStorage.setItem(
+      "geocaster_guessed_countries",
+      JSON.stringify(guessedCountriesByContinent)
+    );
+  }, [completedContinents, currentContinentIndex, guessedCountriesByContinent]);
 
   // Dev: allow connect button to proceed on localhost
   const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -70,7 +188,20 @@ export default function App() {
       )}
       {/* Main Content */}
       <main className="w-full max-w-xl bg-gradient-to-br from-cyan-950/90 via-sky-900/80 to-cyan-900/90 rounded-3xl shadow-2xl p-8 flex flex-col items-center border border-cyan-400/10">
-        <h1 className="text-4xl sm:text-5xl font-extrabold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-400 to-cyan-200 drop-shadow-xl tracking-tight animate-fade-in">GeoCaster <span className='inline-block animate-bounce'>🌍</span></h1>
+        <div className="flex flex-col items-center">
+          <h1 className="text-4xl sm:text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-400 to-cyan-200 drop-shadow-xl tracking-tight animate-fade-in">GeoCaster <span className='inline-block animate-bounce'>🌍</span></h1>
+          {isDevConnected && !showOnboarding && !allDone && (
+            <div className="mb-6">
+              <GameTimer
+                startTimestamp={startTimestamp}
+                endTimestamp={endTimestamp}
+                elapsedTimeMs={elapsedTimeMs}
+                isRunning={!!startTimestamp && !endTimestamp}
+                formatElapsedTime={formatElapsedTime}
+              />
+            </div>
+          )}
+        </div>
         {/* Wallet Connect */}
         {!isDevConnected && !showOnboarding && (
           <div className="flex flex-col items-center gap-6 w-full my-8">
@@ -101,13 +232,19 @@ export default function App() {
         {/* Game Content */}
         {isDevConnected && !showOnboarding && (
           allDone ? (
-            <CompletionBanner />
+            <CompletionBanner
+              resetGame={resetGame}
+              elapsedTimeMs={elapsedTimeMs}
+              formatElapsedTime={formatElapsedTime}
+            />
           ) : (
             <ContinentQuiz
               continent={CONTINENTS[currentContinentIndex]}
               onComplete={handleCompletion}
-              continentsCompleted={continentsCompleted}
+              continentsCompleted={completedContinents.length}
               totalContinents={CONTINENTS.length}
+              guessed={guessedCountriesByContinent[CONTINENTS[currentContinentIndex].name] || []}
+              setGuessed={guessedArr => setGuessedCountriesByContinent(prev => ({ ...prev, [CONTINENTS[currentContinentIndex].name]: guessedArr }))}
             />
           )
         )}

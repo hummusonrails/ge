@@ -12,6 +12,8 @@ interface ContinentQuizProps {
   onComplete: (continentName: string) => void;
   continentsCompleted: number;
   totalContinents: number;
+  guessed: string[];
+  setGuessed: (guessed: string[]) => void;
 }
 
 export default function ContinentQuiz({
@@ -19,8 +21,9 @@ export default function ContinentQuiz({
   onComplete,
   continentsCompleted,
   totalContinents,
+  guessed,
+  setGuessed,
 }: ContinentQuizProps) {
-  const [guessed, setGuessed] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [showEmoji, setShowEmoji] = useState<string | null>(null);
 
@@ -32,10 +35,8 @@ export default function ContinentQuiz({
   }, [showEmoji]);
 
   useEffect(() => {
-    setGuessed([]);
     setInput("");
   }, [continent.name]);
-  
 
   const requiredToComplete = Math.ceil(continent.countries.length / 4);
 
