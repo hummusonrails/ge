@@ -77,8 +77,20 @@ export default function CompletionBanner({ resetGame, elapsedTimeMs, formatElaps
             </span>
             <span className="absolute -inset-1.5 z-[-1] rounded-3xl bg-gradient-to-r from-yellow-200/40 via-pink-200/30 to-purple-200/40 blur-lg opacity-80 animate-glow" />
           </button>
-          {mintError && <div className="text-red-600 mt-2">Mint error: {mintError.message}</div>}
-          {txError && <div className="text-red-600 mt-2">Tx error: {txError.message}</div>}
+          {mintError && (
+  <div className="text-red-600 mt-2">
+    <div>Mint error: {mintError.message}</div>
+    <pre className="text-xs bg-red-50 text-red-700 p-2 rounded overflow-x-auto mt-1">{JSON.stringify(mintError, null, 2)}</pre>
+    <div className="text-yellow-700 text-xs mt-1">Hint: Make sure you are connected to Arbitrum One and have enough ETH on Arbitrum, not Ethereum mainnet.</div>
+  </div>
+)}
+          {txError && (
+  <div className="text-red-600 mt-2">
+    <div>Tx error: {txError.message}</div>
+    <pre className="text-xs bg-red-50 text-red-700 p-2 rounded overflow-x-auto mt-1">{JSON.stringify(txError, null, 2)}</pre>
+    <div className="text-yellow-700 text-xs mt-1">Hint: Make sure you are connected to Arbitrum One and have enough ETH on Arbitrum, not Ethereum mainnet.</div>
+  </div>
+)}
           {isMinted && <div className="text-green-600 mt-2">Success! Your NFT is minted.</div>}
         </div>
       )}
